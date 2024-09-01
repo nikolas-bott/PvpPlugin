@@ -1,0 +1,17 @@
+name: PvpPlugin
+version: '1.0-SNAPSHOT'
+main: de.saloking.pvpPlugin.PvpPlugin
+api-version: '1.21'
+commands:
+  openInv:
+    description: Öffnet das Inventar zum LobbyJoin.
+    usage: /<command>
+  uhctp:
+    description: Tpt die Spieler zum Modi UHC
+    usage: /<command>
+  axetp:
+    description: Tpt die Spieler zum Modi AXE
+    usage: /<command>
+  ostp:
+    description: Tpt die Spiler zum Modi Only Sword
+    usage: /<command>
