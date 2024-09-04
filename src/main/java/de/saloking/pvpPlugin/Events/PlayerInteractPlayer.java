@@ -1,86 +1,162 @@
 package de.saloking.pvpPlugin.Events;
 
+import de.saloking.pvpPlugin.PvpPlugin;
 import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 public class PlayerInteractPlayer implements Listener {
-    HashMap<UUID,UUID> mapBothPlayer = new HashMap<>();
-    HashMap<UUID,String> mapPlayer1 = new HashMap<>();
+    private HashMap<UUID, UUID> mapBothPlayer = new HashMap<>();
+    private HashMap<UUID, String> mapPlayer1 = new HashMap<>();
+
+    private HashMap<Player, Player> inMatch = new HashMap<>();
+    private HashMap<Player, Player> RinMatch = new HashMap<>();
+    private HashMap<Player, String> inArena = new HashMap<>();
+
+    private List<Integer> uhcList = new ArrayList<>();
+    private List<Integer> axeList = new ArrayList<>();
+    private List<Integer> osList = new ArrayList<>();
+    // Es gibtg verschiedene Arnenen bspw. "UHC 1" oder "UHC 2" usw...
+    private final PvpPlugin plugin;
+
+    public PlayerInteractPlayer(PvpPlugin plugin) {
+        this.plugin = plugin;
+    }
 
     @EventHandler
-    public void onPlayerInteract(PrePlayerAttackEntityEvent e){
-
+    public void onPlayerInteract(PrePlayerAttackEntityEvent e) {
         Player p = e.getPlayer();
 
-        if(e.getAttacked() instanceof Player player){
-            if(p.getItemInHand().getType().equals(Material.GOLDEN_APPLE)){
-                mapBothPlayer.put(player.getUniqueId(),p.getUniqueId());
-                mapPlayer1.put(p.getUniqueId(),"UHC");
+        if (e.getAttacked() instanceof Player player) {
 
-                if(mapBothPlayer.containsKey(player.getUniqueId()) && mapBothPlayer.containsKey(p.getUniqueId())){
-                    if(mapPlayer1.get(player.getUniqueId()).equals(mapPlayer1.get(p.getUniqueId()))){
-                        p.sendMessage("Du hast die Kampf im Modi UHC gegen "+player.getDisplayName()+" Akzeptiert!");
-                        player.sendMessage(p.getDisplayName()+" hat den Kampf im Modi UHC akzeptiert!");
-                        p.performCommand("UHCTP");
-                        player.performCommand("UHCTP");
-                        return;
+            //UHC---
+            if (p.getItemInHand().getType().equals(Material.GOLDEN_APPLE)) {
+                mapPut(player, p, "UHC");
+                if (isThere(player, p)) {
+                    p.sendMessage("Du hast die Kampf im Modi UHC gegen " + player.getDisplayName() + " Akzeptiert!");
+                    player.sendMessage(p.getDisplayName() + " hat den Kampf im Modi UHC akzeptiert!");
+
+                    if (uhcList.size() < 10) {
+                        startPVP(p, player, p.getWorld(), "UHC-TP", uhcList.size());
+                        uhcList.add(uhcList.size() + 1);
+                    } else {
+                        p.sendMessage(ChatColor.RED + "Du konntest leider nicht in die Arena teleportiert werden, da momentan alle Arenen besspielt werden. (warte einige sekunden/minuten)");
+                        player.sendMessage(ChatColor.RED + "Du konntest leider nicht in die Arena teleportiert werden, da momentan alle Arenen besspielt werden. (warte einige sekunden/minuten");
                     }
+
+                    return;
                 }
-                player.sendMessage(ChatColor.BOLD+""+p.getDisplayName()+""+ChatColor.GOLD+" hat dich zu einem UHC Battle herausgefordert.");
+                player.sendMessage(ChatColor.BOLD + "" + p.getDisplayName() + "" + ChatColor.GOLD + " hat dich zu einem UHC Battle herausgefordert.");
 
-              //  p.sendMessage("p="+p.getDisplayName()+" player="+player.getDisplayName());
+                //Axe-PVP---
+            } else if (p.getItemInHand().getType().equals(Material.IRON_AXE)) {
+                mapPut(player, p, "AXE");
+                if (isThere(player, p)) {
+                    p.sendMessage("Du hast den Kampf im Modi Axt-Pvp gegen " + player.getDisplayName() + " Akzeptiert!");
+                    player.sendMessage(p.getDisplayName() + " hat den Kampf im Modi Axt-Pvp akzeptiert!");
 
-                //player.sendMessage(uhcMsg);
-            }else if(p.getItemInHand().getType().equals(Material.IRON_AXE)){
-                mapBothPlayer.put(player.getUniqueId(),p.getUniqueId());
-                mapPlayer1.put(p.getUniqueId(),"AXE");
+                    startPVP(p, player, p.getWorld(), "AXE-TP", axeList.size());
+                    axeList.add(axeList.size() + 1);
 
-                if(mapBothPlayer.containsKey(player.getUniqueId()) && mapBothPlayer.containsKey(p.getUniqueId())){
-                    if(mapPlayer1.get(player.getUniqueId()).equals(mapPlayer1.get(p.getUniqueId()))){
-                        p.sendMessage("Du hast den Kampf im Modi Axt-Pvp gegen "+player.getDisplayName()+" Akzeptiert!");
-                        player.sendMessage(p.getDisplayName()+" hat den Kampf im Modi Axt-Pvp akzeptiert!");
-                        p.performCommand("axetp");
-                        player.performCommand("axetp");
-                        return;
-                    }
+                    return;
                 }
-                player.sendMessage(ChatColor.BOLD+""+p.getDisplayName()+""+ChatColor.WHITE+" hat dich zu einem Axt-Pvp Battle herausgefordert.");
-                //player.sendMessage(axeMsg);
+                player.sendMessage(ChatColor.BOLD + "" + p.getDisplayName() + "" + ChatColor.WHITE + " hat dich zu einem Axt-Pvp Battle herausgefordert.");
+
+                //Only-Sword---
             } else if (p.getItemInHand().getType().equals(Material.DIAMOND_SWORD)) {
-                mapBothPlayer.put(player.getUniqueId(),p.getUniqueId());
-                mapPlayer1.put(p.getUniqueId(),"OS");
+                mapPut(player, p, "OS");
+                if (isThere(player, p)) {
+                    p.sendMessage("Du hast die Kampf im Modi Only Sword gegen " + player.getDisplayName() + " Akzeptiert!");
+                    player.sendMessage(p.getDisplayName() + " hat den Kampf im Modi Only Sword akzeptiert!");
 
-                if(mapBothPlayer.containsKey(player.getUniqueId()) && mapBothPlayer.containsKey(p.getUniqueId())){
-                    if(mapPlayer1.get(player.getUniqueId()).equals(mapPlayer1.get(p.getUniqueId()))){
-                        p.sendMessage("Du hast die Kampf im Modi Only Sword gegen "+player.getDisplayName()+" Akzeptiert!");
-                        player.sendMessage(p.getDisplayName()+" hat den Kampf im Modi Only Sword akzeptiert!");
-                        p.performCommand("ostp");
-                        player.performCommand("ostp");
-                        return;
-                    }
+                    startPVP(p, player, p.getWorld(), "OS-TP", osList.size());
+                    osList.add(osList.size() + 1);
+
+                    return;
                 }
-                player.sendMessage(ChatColor.BOLD+""+p.getDisplayName()+""+ChatColor.BLUE+" hat dich zu einem Only Sword Battle herausgefordert.");
-                //player.sendMessage(onlySwordMsg);
+                player.sendMessage(ChatColor.BOLD + "" + p.getDisplayName() + "" + ChatColor.BLUE + " hat dich zu einem Only Sword Battle herausgefordert.");
+            }
+        }
+    }
+
+    //Methoden---
+
+    //Spieler Daten in die HashMap eintragen
+    public void mapPut(Player player, Player p, String modi) {
+        mapBothPlayer.put(player.getUniqueId(), p.getUniqueId());
+        mapPlayer1.put(p.getUniqueId(), modi);
+    }
+
+    //Schauen ob sich zwei Spieler im gleichen Modi angefragt haben
+    public boolean isThere(Player player, Player p) {
+        if (mapBothPlayer.containsKey(player.getUniqueId()) && mapBothPlayer.containsKey(p.getUniqueId())) {
+            if (mapPlayer1.get(player.getUniqueId()).equals(mapPlayer1.get(p.getUniqueId()))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //Teleportiert die Spieler zu der Arena
+    public void startPVP(Player p1, Player p2, World world, String configDesti, int numberInList) {
+        int z = plugin.getConfig().getInt(configDesti + ".Z");
+        int zNew = z + (numberInList * 150);
+
+        Location location = new Location
+                (world, plugin.getConfig().getInt(configDesti + ".X"), plugin.getConfig().getInt(configDesti + ".Y"), zNew);
+        p1.teleport(location);
+        //p2.teleport(location);
+        p1.sendTitle("...", "");
+        p2.sendTitle("...", "");
+
+        inMatch.put(p1, p2);
+        RinMatch.put(p2,p1);
+        inArena.put(p1, configDesti + " " + numberInList);
+    }
+
+    @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent e) {
+
+        if(inMatch.containsKey(e.getPlayer()) || inMatch.containsValue(e.getPlayer())){
+            Player killed = e.getPlayer();
+            Location location = new Location
+                    (e.getPlayer().getWorld(), plugin.getConfig().getInt("Lobby.X"),
+                            plugin.getConfig().getInt("Lobby.Y"),plugin.getConfig().getInt("Lobby.Z") );
+
+            if(inMatch.containsKey(e.getPlayer())){
+                Player killer = inMatch.get(e.getPlayer());
+
+                killed.sendMessage(ChatColor.RED+"Du hast gegen "+killer.getDisplayName()+" verloren! "+killer.getDisplayName()+" hatte noch "+killer.getHealth()+"/20 Leben.");
+                killer.sendMessage(ChatColor.GREEN+"Du hast gegen" + killed.getDisplayName()+" gewonnen!");
+
+                killer.teleport(location);
+            }else{
+                Player killer = RinMatch.get(e.getPlayer());
+
+                killed.sendMessage(ChatColor.RED+"Du hast gegen "+killer.getDisplayName()+" verloren! "+killer.getDisplayName()+" hatte noch "+killer.getHealth()+"/20 Leben.");
+                killer.sendMessage(ChatColor.GREEN+"Du hast gegen" + killed.getDisplayName()+" gewonnen!");
+
+                killer.teleport(location);
+                killed.teleport(location);
+
+                if(inArena.containsKey(killed)){
+                    
+                }else if(inArena.containsKey(killer)){
+
+                }
+
             }
 
         }
+
     }
 }
- /*   Component uhcMsg = Component.text("[UHC AKZEPTIEREN]").hoverEvent(HoverEvent.showText(Component.text("Klicke um einen 1v1 Kamp im Modi UHC zu akzeptieren")))
-                .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/tp @p ~ 110 ~"));
 
-        Component onlySwordMsg = Component.text("[Only Sword AKZEPTIEREN]").hoverEvent(HoverEvent.showText(Component.text("Klicke um einen 1v1 Kamp im Modi Only Sword zu akzeptieren")))
-                .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/tp @p ~ 120 ~"));
-
-        Component axeMsg = Component.text("[Axt-Pvp AKZEPTIEREN]").hoverEvent(HoverEvent.showText(Component.text("Klicke um einen 1v1 Kamp im Modi Axt-Pvp zu akzeptieren")))
-                .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/tp @p ~ 130 ~"));
-
-*/

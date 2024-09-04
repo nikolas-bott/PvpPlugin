@@ -1,4 +1,17 @@
-UHC-TP: '/tp @p ~ 120 ~' #Kommand um leute zum UHC Kampf zu teleportieren
-AXE-TP: '/tp @p ~ 130 ~' #Kommand um leute zum AXE-PVP Kampf zu teleportieren
-OS-TP: '/tp @p ~ 140 ~' #Kommand um leute zum AXE-PVP Kampf zu teleportieren
+UHC-TP: #Location wo leute hin teleportiert werden
+  X: 100
+  Y: 100
+  Z: 100
+AXE-TP:
+  X: 200
+  Y: 200
+  Z: 200
+OS-TP:
+  X: 300
+  Y: 300
+  Z: 300
+Lobby:
+  X: -40
+  Y: 105
+  Z: -70
 
