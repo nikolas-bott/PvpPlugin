@@ -8,6 +8,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +20,7 @@ public class PlayerInteractPlayer implements Listener {
 
     private HashMap<Player, Player> inMatch = new HashMap<>();
     private HashMap<Player, Player> RinMatch = new HashMap<>();
-    private HashMap<Player, String> inArena = new HashMap<>();
+    private HashMap<String, Player> inArena = new HashMap<>();
 
     private List<Integer> uhcList = new ArrayList<>();
     private List<Integer> axeList = new ArrayList<>();
@@ -118,39 +119,56 @@ public class PlayerInteractPlayer implements Listener {
         p2.sendTitle("...", "");
 
         inMatch.put(p1, p2);
-        RinMatch.put(p2,p1);
-        inArena.put(p1, configDesti + " " + numberInList);
+        RinMatch.put(p2, p1);
+        inArena.put(configDesti + " " + numberInList, p1);
     }
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent e) {
 
-        if(inMatch.containsKey(e.getPlayer()) || inMatch.containsValue(e.getPlayer())){
+        if (inMatch.containsKey(e.getPlayer()) || inMatch.containsValue(e.getPlayer())) {
             Player killed = e.getPlayer();
             Location location = new Location
                     (e.getPlayer().getWorld(), plugin.getConfig().getInt("Lobby.X"),
-                            plugin.getConfig().getInt("Lobby.Y"),plugin.getConfig().getInt("Lobby.Z") );
+                            plugin.getConfig().getInt("Lobby.Y"), plugin.getConfig().getInt("Lobby.Z"));
 
-            if(inMatch.containsKey(e.getPlayer())){
+            if (inMatch.containsKey(e.getPlayer())) {
                 Player killer = inMatch.get(e.getPlayer());
 
-                killed.sendMessage(ChatColor.RED+"Du hast gegen "+killer.getDisplayName()+" verloren! "+killer.getDisplayName()+" hatte noch "+killer.getHealth()+"/20 Leben.");
-                killer.sendMessage(ChatColor.GREEN+"Du hast gegen" + killed.getDisplayName()+" gewonnen!");
+                killed.sendMessage(ChatColor.RED + "Du hast gegen " + killer.getDisplayName() + " verloren! " + killer.getDisplayName() + " hatte noch " + killer.getHealth() + "/20 Leben.");
+                killer.sendMessage(ChatColor.GREEN + "Du hast gegen" + killed.getDisplayName() + " gewonnen!");
 
                 killer.teleport(location);
-            }else{
+            } else {
                 Player killer = RinMatch.get(e.getPlayer());
 
-                killed.sendMessage(ChatColor.RED+"Du hast gegen "+killer.getDisplayName()+" verloren! "+killer.getDisplayName()+" hatte noch "+killer.getHealth()+"/20 Leben.");
-                killer.sendMessage(ChatColor.GREEN+"Du hast gegen" + killed.getDisplayName()+" gewonnen!");
+                killed.sendMessage(ChatColor.RED + "Du hast gegen " + killer.getDisplayName() + " verloren! " + killer.getDisplayName() + " hatte noch " + killer.getHealth() + "/20 Leben.");
+                killer.sendMessage(ChatColor.GREEN + "Du hast gegen" + killed.getDisplayName() + " gewonnen!");
 
                 killer.teleport(location);
                 killed.teleport(location);
 
-                if(inArena.containsKey(killed)){
-                    
-                }else if(inArena.containsKey(killer)){
+                String temp = null;
+                String[] tempAray;
+                String mode = null;
+                int number = 0;
 
+                for (String key : inArena.keySet()) {
+                    if (inArena.containsValue(killer) || inArena.containsValue(killed)) {
+                        temp = key;
+                        tempAray = temp.split(" ");
+
+                        number = Integer.valueOf(tempAray[1]);
+                        mode = tempAray[0];
+                    }
+                }
+
+                if (mode.contains("UHC")) {
+                    inArena.remove("UHC-TP " + number);
+                } else if (mode.contains("OS")) {
+                    inArena.remove("OS-TP " + number);
+                } else if (mode.contains("AXE")) {
+                    inArena.remove("AXE-TP " + number);
                 }
 
             }
