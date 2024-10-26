@@ -36,8 +36,8 @@ public class PlayerInteractPlayer implements Listener {
     public void onPlayerInteract(PrePlayerAttackEntityEvent e) {
         Player p = e.getPlayer();
 
-        if (e.getAttacked() instanceof Player player) {
 
+        if (e.getAttacked() instanceof Player player) {
             //UHC---
             if (p.getItemInHand().getType().equals(Material.GOLDEN_APPLE)) {
                 mapPut(player, p, "UHC");

@@ -1,0 +1,4 @@
+name: FFA
+version: '1.0-SNAPSHOT'
+main: de.saloking.FFA.Main
+api-version: '1.21'

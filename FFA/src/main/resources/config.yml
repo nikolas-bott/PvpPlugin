@@ -1,0 +1,7 @@
+spawn-area:
+  X1: -3 #der kleiner X wert!!!
+  X2: 3
+  Y1: 134 #der kleiner Y wert!!!
+  Y2: 200
+  Z1: -3 #der kleiner Z wert!!!
+  Z2: 3
