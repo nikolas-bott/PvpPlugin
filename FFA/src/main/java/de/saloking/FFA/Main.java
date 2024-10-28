@@ -7,11 +7,10 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        // Plugin startup logic
         //Config
         getConfig().options().copyDefaults(true);
         saveConfig();
-
+        //Listeners
         getServer().getPluginManager().registerEvents(new IsOnSpawnIsland(this), this);
     }
 }
