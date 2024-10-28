@@ -5,31 +5,50 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
 
 public class IsOnSpawnIsland implements Listener {
     private final Main plugin;
     public IsOnSpawnIsland(Main plugin){
         this.plugin = plugin;
     }
-
-
     @EventHandler
     public void onPVP(EntityDamageByEntityEvent e){
-        int x1 = this.plugin.getConfig().getInt("spawn-area.X1");
-        int x2 = this.plugin.getConfig().getInt("spawn-area.X2");
-        int y1 = this.plugin.getConfig().getInt("spawn-area.Y1");
-        int y2 = this.plugin.getConfig().getInt("spawn-area.Y2");
-        int z1 = this.plugin.getConfig().getInt("spawn-area.Z1");
-        int z2 = this.plugin.getConfig().getInt("spawn-area.Z2");
+        int smallerX = smallerValue("X");
+        int greaterX = greaterValue("X");
+        int smallerY = smallerValue("Y");
+        int greaterY = greaterValue("Y");
+        int smallerZ = smallerValue("Z");
+        int greaterZ = greaterValue("Z");
+
+        e.getDamager().sendMessage("Test \n " +
+                "X-Werte: "+smallerX +" / "+greaterX +"\n"+
+                "Y_Werte: "+ smallerY + " / " + greaterY +"\n"+
+                "Z-Werte: "+smallerZ +" / "+ greaterZ);
+
 
         if(e.getDamager() instanceof Player p){
-            if(p.getX() > x1 && p.getX() < x2 &&
-            p.getY() > y1 && p.getY() < y2 &&
-            p.getZ() > z1 && p.getZ() < z2){
+            if(p.getX() >= smallerX && p.getX() < greaterX &&
+                    p.getY() > smallerY && p.getY() < greaterY &&
+                    p.getZ() > smallerZ && p.getZ() < greaterZ){
                 e.setCancelled(true);
+                e.getDamager().sendMessage("Test2");
             }
         }
 
+    }
+
+    public int greaterValue(String path) {
+        int a = this.plugin.getConfig().getInt("spawn-area."+path+"1");
+        int b = this.plugin.getConfig().getInt("spawn-area."+path+"2");
+
+        if(a > b) return a;
+        return b;
+    }
+    public int smallerValue(String path){
+        int a = this.plugin.getConfig().getInt("spawn-area."+path+"1");
+        int b = this.plugin.getConfig().getInt("spawn-area."+path+"2");
+
+        if(a <= b) return a;
+        return b;
     }
 }
