@@ -1,3 +1,4 @@
+de\saloking\FFA\Listeners\DisablePvpOnSpawn.class
 de\saloking\FFA\Main.class
-de\saloking\FFA\Listeners\IsOnSpawnIsland.class
 de\saloking\FFA\OnSpawnIsland.class
+de\saloking\FFA\Listeners\DisableMiningOnSpawn.class

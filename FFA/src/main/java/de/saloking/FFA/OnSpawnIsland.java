@@ -17,13 +17,10 @@ public class OnSpawnIsland {
         int greaterZ = greaterValue("Z");
 
 
-            if(x >= smallerX && x < greaterX &&
-                    y > smallerY && y < greaterY &&
-                    z > smallerZ && z < greaterZ){
-                return true;
-            }
-            return false;
-        }
+        return x >= smallerX && x < greaterX &&
+                y > smallerY && y < greaterY &&
+                z > smallerZ && z < greaterZ;
+    }
 
 
 
